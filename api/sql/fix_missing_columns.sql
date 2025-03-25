@@ -1,0 +1,23 @@
+-- Add missing columns to analytics_overview table
+ALTER TABLE analytics_overview
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Add missing columns to user_sessions table
+ALTER TABLE user_sessions
+ADD COLUMN ended_at TIMESTAMP NULL DEFAULT NULL;
+
+-- Add missing columns to user_analytics table
+ALTER TABLE user_analytics
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Add missing columns to analytics_data table
+ALTER TABLE analytics_data
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+-- Add missing columns to sentiment_analysis table
+ALTER TABLE sentiment_analysis
+ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;

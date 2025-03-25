@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Analytics Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <link href="css/chat.css" rel="stylesheet">
+    
+
+</head>
+<body class="bg-light">
+    <div id="login-container" class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold mb-1">AI Analytics Dashboard</h2>
+                    <p class="text-muted">Sign in to access your analytics</p>
+                </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <form id="login-form" novalidate>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control" id="email" placeholder="name@example.com" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$">
+                                <label for="email">Email address</label>
+                                <div class="invalid-feedback">Please enter a valid email address.</div>
+                            </div>
+                            <div class="form-floating mb-4">
+                                <input type="password" class="form-control" id="password" placeholder="Password" required minlength="6">
+                                <label for="password">Password</label>
+                                <div class="invalid-feedback">Password must be at least 6 characters.</div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold position-relative">
+                                <span>Sign in</span>
+                                <span class="spinner-border spinner-border-sm position-absolute top-50 end-50 translate-middle-y d-none" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </span>
+                            </button>
+                        </form>
+                        <!-- Login error message container -->
+                        <div id="login-error" class="alert alert-danger mt-3 d-none"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-container" class="d-none">
+        <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand fw-bold" href="#">
+                    <i class="ri-bar-chart-box-line me-2 text-primary"></i>AI Analytics
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <i class="ri-menu-line"></i>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link px-3 active" href="#" data-page="analytics-hub">
+                                <i class="ri-dashboard-line me-1"></i>Analytics Hub
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" data-page="analytics">
+                                <i class="ri-line-chart-line me-1"></i>Overview
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" data-page="user-stats">
+                                <i class="ri-group-line me-1"></i>User Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" data-page="chat">
+                                <i class="ri-message-3-line me-1"></i>AI Insights
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" data-page="saved-analytics">
+                                <i class="ri-bookmark-line me-1"></i>Saved Analytics
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" data-page="sample-charts">
+                                <i class="ri-bar-chart-2-line me-1"></i>Sample Charts
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" data-page="ai-charts">
+                                <i class="ri-message-3-line me-1"></i>AI Charts
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+
+                        <li class="nav-item">
+                            <a class="nav-link px-3" href="#" id="logout">
+                                <i class="ri-logout-box-line me-1"></i>Sign out
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="container-fluid px-4 py-4">
+            <!-- Chat Page -->
+            <div id="chat-page" class="dashboard-page d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">AI Insights</h4>
+                </div>
+                <div class="chat-container">
+                    <div id="chat-messages" class="chat-messages">
+                        <!-- Messages will be inserted here -->
+                        <div class="assistant-message animate-message">
+                            <div class="message-bubble">
+                                Hello! I'm your AI analytics assistant. I can help you analyze data, create visualizations, and answer questions about your analytics. What would you like to know?
+                            </div>
+                            <div class="message-timestamp"></div>
+                        </div>
+                        <div id="typing-indicator" class="typing-indicator d-none">
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                            <div class="typing-dot"></div>
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <textarea id="message-input" class="form-control" placeholder="Type your message..." rows="1"></textarea>
+                            <button id="send-message" class="btn btn-primary">
+                                <i class="ri-send-plane-fill"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics-hub-page" class="dashboard-page">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Analytics Hub</h4>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-light btn-sm active" data-view="grid"><i class="ri-grid-fill me-1"></i>Grid</button>
+                        <button type="button" class="btn btn-light btn-sm" data-view="list"><i class="ri-list-check me-1"></i>List</button>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <!-- Quick Stats -->
+                    <div class="col-12 mb-4">
+                        <div class="row g-4">
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 bg-primary bg-opacity-10 p-3 rounded">
+                                                <i class="ri-user-line text-primary fs-4"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="fw-semibold mb-1">Active Users</h6>
+                                                <h4 class="fw-bold mb-0" id="active-users-count">0</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 bg-success bg-opacity-10 p-3 rounded">
+                                                <i class="ri-line-chart-line text-success fs-4"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="fw-semibold mb-1">Growth Rate</h6>
+                                                <h4 class="fw-bold mb-0" id="growth-rate">0%</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 bg-info bg-opacity-10 p-3 rounded">
+                                                <i class="ri-emotion-line text-info fs-4"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="fw-semibold mb-1">Sentiment Score</h6>
+                                                <h4 class="fw-bold mb-0" id="sentiment-score">0</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center">
+                                            <div class="flex-shrink-0 bg-warning bg-opacity-10 p-3 rounded">
+                                                <i class="ri-time-line text-warning fs-4"></i>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="fw-semibold mb-1">Avg. Session</h6>
+                                                <h4 class="fw-bold mb-0" id="avg-session">0m</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Analytics Categories -->
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3"><i class="ri-line-chart-line me-2 text-primary"></i>Overview</h5>
+                                <p class="text-muted">Key metrics and performance indicators</p>
+                                <a href="#" class="btn btn-light w-100" data-page="analytics">View Analytics</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3"><i class="ri-group-line me-2 text-success"></i>User Analytics</h5>
+                                <p class="text-muted">User behavior and demographics analysis</p>
+                                <a href="#" class="btn btn-light w-100" data-page="user-stats">View User Stats</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <h5 class="fw-bold mb-3"><i class="ri-message-3-line me-2 text-info"></i>AI Insights</h5>
+                                <p class="text-muted">AI-powered analytics and custom visualizations</p>
+                                <a href="#" class="btn btn-light w-100" data-page="chat">Generate Insights</a>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Recent Analytics -->
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold mb-0">Recent Analytics</h5>
+                                    <button class="btn btn-light btn-sm" onclick="showExportModal('all', 'Export all analytics data')">
+                                        <i class="ri-download-2-line me-1"></i>Export All
+                                    </button>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-hover" id="recent-analytics-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Type</th>
+                                                <th>Description</th>
+                                                <th>Created</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sample Charts Page -->
+            <div id="sample-charts-page" class="dashboard-page d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Sample Charts Gallery</h4>
+                </div>
+                <div class="row g-4">
+                    <!-- Pie Chart -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Customer Demographics</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="pieChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bar Chart -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Monthly Sales</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="barChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Line Chart -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Revenue Trend</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="lineChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doughnut Chart -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Product Categories</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="doughnutChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Radar Chart -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Skill Assessment</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="radarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Polar Area Chart -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Resource Allocation</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <canvas id="polarChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Word Cloud -->
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title fw-bold">Popular Keywords</h5>
+                                <div class="chart-container" style="height: 300px;">
+                                    <div id="wordCloud" style="width: 100%; height: 100%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics-page" class="dashboard-page d-none">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Analytics Overview</h4>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-light btn-sm" data-range="week">Week</button>
+                        <button type="button" class="btn btn-light btn-sm active" data-range="month">Month</button>
+                        <button type="button" class="btn btn-light btn-sm" data-range="year">Year</button>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-semibold mb-0">Sentiment Analysis</h6>
+                                    <button class="btn btn-light btn-sm" data-bs-toggle="tooltip" title="View details">
+                                        <i class="ri-information-line"></i>
+                                    </button>
+                                </div>
+                                <canvas id="sentimentChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="fw-semibold mb-0">Sentiment Trends</h6>
+                                    <button class="btn btn-light btn-sm" data-bs-toggle="tooltip" title="View details">
+                                        <i class="ri-information-line"></i>
+                                    </button>
+                                </div>
+                                <canvas id="trendsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="chat-page" class="dashboard-page d-none">
+                <div class="container-fluid px-4 py-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body p-0">
+                            <div class="p-4 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="fw-semibold mb-1">AI Assistant</h5>
+                                        <p class="text-muted small mb-0">Ask me anything about your analytics data</p>
+                                    </div>
+                                    <div>
+                                        <span id="connection-status" class="badge text-bg-secondary">Connecting...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="chat-messages" class="p-4" style="height: 500px; overflow-y: auto;"></div>
+                            <div class="p-4 border-top bg-light">
+                                <form id="chat-form">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control border-0 bg-white shadow-none" id="chat-input" 
+                                               placeholder="Ask about your analytics data...">
+                                        <button class="btn btn-primary px-4" type="submit">
+                                            <i class="ri-send-plane-fill"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="user-stats-page" class="dashboard-page d-none">
+                <div class="container-fluid px-4 py-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold mb-0">User Demographics</h4>
+                        <button id="resetFilters" class="btn btn-light d-none">
+                            <i class="ri-filter-line me-2"></i>Reset Filters
+                        </button>
+                    </div>
+
+                    <div id="filterStatus" class="alert alert-info d-none">
+                        <i class="ri-information-line me-2"></i>
+                        <span>Active Filters:</span>
+                        <span id="activeFilters"></span>
+                    </div>
+
+                    <!-- User Demographics Charts -->
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="ri-user-line me-2 text-primary"></i>
+                                        Gender Distribution
+                                    </h5>
+                                    <div class="chart-container" style="height: 300px;">
+                                        <canvas id="genderChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="ri-bar-chart-line me-2 text-success"></i>
+                                        Age Distribution
+                                    </h5>
+                                    <div class="chart-container" style="height: 300px;">
+                                        <canvas id="ageChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-4">
+                                        <i class="ri-map-pin-line me-2 text-warning"></i>
+                                        Location Distribution
+                                    </h5>
+                                    <div class="chart-container" style="height: 300px;">
+                                        <canvas id="locationChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                            <i class="ri-download-line me-1"></i>Export
+                        </button>
+                    </div>
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-semibold mb-0">Gender Distribution</h6>
+                                        <button class="btn btn-light btn-sm" data-bs-toggle="tooltip" title="View details">
+                                            <i class="ri-information-line"></i>
+                                        </button>
+                                    </div>
+                                    <canvas id="genderChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-semibold mb-0">Age Distribution</h6>
+                                        <button class="btn btn-light btn-sm" data-bs-toggle="tooltip" title="View details">
+                                            <i class="ri-information-line"></i>
+                                        </button>
+                                    </div>
+                                    <canvas id="ageChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card border-0 shadow-sm h-100">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-semibold mb-0">Location Distribution</h6>
+                                        <button class="btn btn-light btn-sm" data-bs-toggle="tooltip" title="View details">
+                                            <i class="ri-information-line"></i>
+                                        </button>
+                                    </div>
+                                    <canvas id="locationChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="modal fade" id="export-modal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Export Analytics</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="export-form">
+                        <input type="hidden" id="export-type">
+                        <p id="export-description" class="text-muted mb-3"></p>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Export Type</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="radio" class="btn-check" name="export-type" id="data-export" value="data" checked>
+                                    <label class="btn btn-outline-primary w-100" for="data-export">
+                                        <i class="ri-file-list-3-line me-1"></i>Data
+                                    </label>
+                                </div>
+                                <div class="col">
+                                    <input type="radio" class="btn-check" name="export-type" id="visual-export" value="visual">
+                                    <label class="btn btn-outline-primary w-100" for="visual-export">
+                                        <i class="ri-bar-chart-2-line me-1"></i>Visualization
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3" id="data-format-group">
+                            <label class="form-label">Data Format</label>
+                            <select class="form-select" id="data-format">
+                                <option value="csv">CSV</option>
+                                <option value="json">JSON</option>
+                                <option value="pdf">PDF Report</option>
+                                <option value="xlsx">Excel (XLSX)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3 d-none" id="visual-format-group">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">Chart Type</label>
+                                    <select class="form-select" id="chart-type">
+                                        <option value="line">Line Chart</option>
+                                        <option value="bar">Bar Chart</option>
+                                        <option value="pie">Pie Chart</option>
+                                        <option value="radar">Radar Chart</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Image Format</label>
+                                    <select class="form-select" id="visual-format">
+                                        <option value="png">PNG Image</option>
+                                        <option value="svg">SVG Vector</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Theme</label>
+                                    <select class="form-select" id="chart-theme">
+                                        <option value="default">Default</option>
+                                        <option value="dark">Dark</option>
+                                        <option value="pastel">Pastel</option>
+                                        <option value="monochrome">Monochrome</option>
+                                        <option value="forest">Forest</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Date Range</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="date" class="form-control" id="date-range-start" required>
+                                </div>
+                                <div class="col">
+                                    <input type="date" class="form-control" id="date-range-end" required>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-end">
+                            <button type="button" class="btn btn-light me-2" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Export</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <!-- Settings Page -->
+    <div id="settings-page" class="dashboard-page d-none">
+        <div class="container-fluid px-4 py-4">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold mb-0">System Settings</h4>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-primary" id="test-all" onclick="testConfiguration('all')">
+                                <i class="ri-test-tube-line me-1"></i>Test All
+                            </button>
+                            <button class="btn btn-primary" onclick="saveAllSettings()">
+                                <i class="ri-save-line me-1"></i>Save Changes
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- OpenAI Settings -->
+                    <div class="card border-0 shadow-sm mb-4">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3"><i class="ri-robot-line me-2 text-primary"></i>OpenAI Configuration</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label">OpenAI API Key</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="openai_api_key" placeholder="sk-...">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('openai_api_key')">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Your OpenAI API key for GPT-4 access</div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">OpenAI Assistant Key</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="openai_assistant_key" placeholder="sk-...">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('openai_assistant_key')">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Your OpenAI Assistant API key (if different from main API key)</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" id="test-openai" onclick="testConfiguration('openai')">
+                                <i class="ri-test-tube-line me-1"></i>Test OpenAI Connection
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Database Settings -->
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="fw-bold mb-3"><i class="ri-database-2-line me-2 text-success"></i>Database Configuration</h5>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Database Host</label>
+                                    <input type="text" class="form-control" id="db_host" placeholder="localhost">
+                                    <div class="form-text">Database server hostname or IP</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Database Name</label>
+                                    <input type="text" class="form-control" id="db_name" placeholder="analytics_db">
+                                    <div class="form-text">Name of the database to use</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Database Username</label>
+                                    <input type="text" class="form-control" id="db_username" placeholder="db_user">
+                                    <div class="form-text">Database user with required permissions</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Database Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="db_password">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('db_password')">
+                                            <i class="ri-eye-line"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Database user password</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-outline-primary btn-sm" id="test-database" onclick="testConfiguration('database')">
+                                <i class="ri-test-tube-line me-1"></i>Test Database Connection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test Results Modal -->
+    <div class="modal fade" id="test-results-modal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Test Results</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="test-results"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script>
+        // Debug logging
+        const DEBUG = true;
+        function log(...args) {
+            if (DEBUG) {
+                console.log('[Dashboard]', ...args);
+            }
+        }
+
+        // Initialize dashboard state
+        let dashboardInitialized = false;
+        
+        async function initializeDashboard() {
+            if (dashboardInitialized) {
+                log('Dashboard already initialized');
+                return;
+            }
+
+            log('Initializing dashboard...');
+            
+            try {
+                // Initialize navigation
+                document.querySelectorAll('[data-page]').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const pageId = this.getAttribute('data-page');
+                        showPage(pageId);
+                    });
+                });
+
+                // Show dashboard container
+                const dashboardContainer = document.getElementById('dashboard-container');
+                if (dashboardContainer) {
+                    log('Showing dashboard container');
+                    dashboardContainer.classList.remove('d-none');
+                } else {
+                    throw new Error('Dashboard container not found');
+                }
+
+                // Hide login container if it exists
+                const loginContainer = document.getElementById('login-container');
+                if (loginContainer) {
+                    log('Hiding login container');
+                    loginContainer.classList.add('d-none');
+                }
+
+                // Show default page
+                showPage('analytics-hub');
+                dashboardInitialized = true;
+                log('Dashboard initialized successfully');
+            } catch (error) {
+                log('Error initializing dashboard:', error);
+                throw error; // Propagate error to checkAuth
+            }
+        }
+
+        function showPage(pageId) {
+            log('Showing page:', pageId);
+            document.querySelectorAll('.dashboard-page').forEach(page => {
+                page.classList.add('d-none');
+            });
+            document.querySelectorAll('[data-page]').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const targetPage = document.getElementById(pageId + '-page');
+            const targetLink = document.querySelector(`[data-page="${pageId}"]`);
+            
+            if (targetPage) {
+                targetPage.classList.remove('d-none');
+            }
+            if (targetLink) {
+                targetLink.classList.add('active');
+            }
+        }
+        // Authentication check function
+        async function checkAuth() {
+            log('Checking authentication...');
+            const token = localStorage.getItem('token');
+            
+            if (!token) {
+                log('No token found');
+                if (!window.location.pathname.endsWith('login.html')) {
+                    window.location.replace('login.html');
+                }
+                return;
+            }
+
+            try {
+                log('Verifying token...');
+                const response = await fetch('http://localhost:8888/ai_analytics_dashboard/api/verify_token.php', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                // Check if response is valid JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Invalid response format');
+                }
+
+                const text = await response.text();
+                log('Raw auth response:', text);
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    log('JSON parse error:', e);
+                    throw new Error('Invalid JSON response');
+                }
+
+                log('Auth check response:', data);
+                if (data.status !== 'success' || !data.user) {
+                    throw new Error('Invalid user data');
+                }
+                
+                // Store latest user data
+                localStorage.setItem('user', JSON.stringify(data.user));
+                
+                // Update user info
+                const userEmail = document.getElementById('user-email');
+                if (userEmail) {
+                    userEmail.textContent = data.user.email;
+                }
+
+                // Initialize dashboard
+                log('Initializing dashboard...');
+                await initializeDashboard();
+                
+            } catch (error) {
+                log('Auth check failed:', error);
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.replace('login.html');
+            }
+        }
+
+        // Handle logout
+        document.getElementById('logout-btn')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            log('Logging out...');
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.replace('login.html');
+        });
+
+        // Initialize authentication check
+        document.addEventListener('DOMContentLoaded', () => {
+            log('DOM loaded, checking auth...');
+            checkAuth();
+        });
+
+        // Navigation handling
+        document.querySelectorAll('[data-page]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetPage = this.getAttribute('data-page');
+                
+                // Hide all pages
+                document.querySelectorAll('.dashboard-page').forEach(page => {
+                    page.classList.add('d-none');
+                });
+                
+                // Show target page
+                const targetElement = document.getElementById(`${targetPage}-page`);
+                if (targetElement) {
+                    targetElement.classList.remove('d-none');
+                    
+                    // Initialize sample charts if needed
+                    if (targetPage === 'sample-charts' && typeof initializeCharts === 'function') {
+                        setTimeout(initializeCharts, 100); // Small delay to ensure DOM is ready
+                    }
+                }
+                
+                // Update active state
+                document.querySelectorAll('.nav-link').forEach(navLink => {
+                    navLink.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    </script>
+    
+    <!-- Bootstrap and Additional Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.3.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/jasondavies/d3-cloud/build/d3.layout.cloud.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/analytics-hub.js"></script>
+    <script src="js/user-analytics.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/sample-charts.js"></script>
+    <script>
+        // Initialize charts when the sample charts page is shown
+        document.addEventListener('DOMContentLoaded', () => {
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    if (mutation.target.id === 'sample-charts-page' && 
+                        !mutation.target.classList.contains('d-none')) {
+                        // Re-initialize charts when the page becomes visible
+                        if (typeof initializeCharts === 'function') {
+                            initializeCharts();
+                        }
+                    }
+                });
+            });
+
+            const sampleChartsPage = document.getElementById('sample-charts-page');
+            if (sampleChartsPage) {
+                observer.observe(sampleChartsPage, {
+                    attributes: true,
+                    attributeFilter: ['class']
+                });
+            }
+        });
+    </script>
+</body>
+</html>

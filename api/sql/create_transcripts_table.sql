@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS transcripts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    Discussion_Content_English TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
